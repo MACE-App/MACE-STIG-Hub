@@ -136,7 +136,7 @@ MACE STIG Hub is a **community-driven project**. If you run into issues, have fe
 
 Created by [Cody Keats](https://codykeats.com) — a Mac admin building tools for the macOS admin community.
 
-Part of the [M.A.C.E.](https://github.com/MACE-App/MACE) project family.
+Part of the [M.A.C.E.](https://github.com/MACE-App) project family.
 
 <p align="center">
   <a href="https://github.com/mace-app/mace-stig-hub/releases">Download Latest Release</a> &bull;
