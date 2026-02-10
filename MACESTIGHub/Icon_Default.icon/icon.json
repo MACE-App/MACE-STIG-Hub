@@ -1,0 +1,43 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.06643,0.18069,0.90336,1.00000",
+      "display-p3:0.00000,0.50890,0.96324,1.00000"
+    ],
+    "orientation" : {
+      "start" : {
+        "x" : 0.5,
+        "y" : 0
+      },
+      "stop" : {
+        "x" : 0.5,
+        "y" : 0.7
+      }
+    }
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "MACE_STIG_HUB-Photoroom.png",
+          "name" : "MACE_STIG_HUB-Photoroom"
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

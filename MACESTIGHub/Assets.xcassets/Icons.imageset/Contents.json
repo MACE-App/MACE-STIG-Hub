@@ -1,0 +1,62 @@
+{
+  "images" : [
+    {
+      "filename" : "MACE_STIG_HUB.png",
+      "idiom" : "mac",
+      "scale" : "1x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "MACE_STIG_HUB 2.png",
+      "idiom" : "mac",
+      "scale" : "1x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "Untitled-iOS-Dark-1024x1024@1x.png",
+      "idiom" : "mac",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "MACE_STIG_HUB 1.png",
+      "idiom" : "mac",
+      "scale" : "2x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "MACE_STIG_HUB 3.png",
+      "idiom" : "mac",
+      "scale" : "2x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "Untitled-iOS-Dark-1024x1024@1x 1.png",
+      "idiom" : "mac",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

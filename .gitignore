@@ -1,0 +1,29 @@
+# Bundled binaries (too large for git — distribute via GitHub Releases)
+BundledResources/
+
+# Source downloads / working files
+stig_viewer_3-linux-x64/
+U_STIGViewer_2-18/
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Xcode user data
+xcuserdata/
+*.xcuserdatad/
+*.xcscmblueprint
+*.xccheckout
+
+# Xcode build artifacts
+build/
+DerivedData/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Claude Code
+.claude/
