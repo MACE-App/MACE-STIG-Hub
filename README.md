@@ -25,6 +25,7 @@
 - [Screenshots](#screenshots)
 - [What's Bundled](#whats-bundled)
 - [Features](#features)
+- [Building from Source](#building-from-source)
 - [Requirements](#requirements)
 - [Disclaimer](#disclaimer)
 - [Community & Feedback](#community--feedback)
@@ -114,6 +115,57 @@ MACE STIG Hub is a native macOS app that bundles everything you need to run **ST
 ### System Info
 - View app version, build info, and system details
 - Copy diagnostics to clipboard for troubleshooting
+
+## Building from Source
+
+The `BundledResources/` folder is not included in the repository due to its size (~1.4 GB). To build the project yourself:
+
+1. Download `BundledResources.zip` from the [latest release](https://github.com/mace-app/mace-stig-hub/releases)
+2. Unzip it into the project root so the folder structure looks like this:
+
+```
+BundledResources/
+├── jre-arm64/              # BellSoft Liberica JRE 21 — macOS ARM64 (Apple Silicon)
+├── jre-x64/                # BellSoft Liberica JRE 21 — macOS x64 (Intel)
+├── STIGViewer-2.18.jar     # STIG Viewer 2 JAR from DISA
+├── stigviewer2.icns        # STIG Viewer 2 app icon
+├── sv3-arm64/              # STIG Viewer 3.app — macOS ARM64 (Apple Silicon)
+│   └── STIG Viewer 3.app/
+└── sv3-x64/                # STIG Viewer 3.app — macOS x64 (Intel)
+    └── STIG Viewer 3.app/
+```
+
+3. Open `MACESTIGHub.xcodeproj` in Xcode
+4. Build and run
+
+### Updating components yourself
+
+If you want to update individual components instead of using the pre-built bundle:
+
+| Component | Source |
+|-----------|--------|
+| **BellSoft Liberica JRE 21** | Download the Full JRE for macOS from [bell-sw.com](https://bell-sw.com/pages/downloads/#jdk-21-lts) — get both `aarch64` and `x86_64` builds |
+| **STIGViewer-2.18.jar** | Download from [DISA STIG/SRG Tools](https://cyber.mil/stigs/srg-stig-tools/) — extract the JAR from the zip |
+| **STIG Viewer 3** | See [Building STIG Viewer 3 for macOS](#building-stig-viewer-3-for-macos) below |
+
+### Building STIG Viewer 3 for macOS
+
+DISA distributes STIG Viewer 3 as an Electron app for Windows and Linux but not macOS. The macOS version included in this project is built by extracting the application code from the Linux release and repackaging it inside a macOS Electron shell. Here's how:
+
+1. **Download the Linux build** from [DISA STIG/SRG Tools](https://cyber.mil/stigs/srg-stig-tools/) — grab the Linux x64 `.zip`
+2. **Extract `app.asar`** — Inside the Linux build, locate `resources/app.asar` and `resources/app.asar.unpacked/`. These contain the STIG Viewer 3 application code and native modules (like `sqlite3-offline-next`)
+3. **Download macOS Electron binaries** — Get the matching Electron version for both `darwin-arm64` and `darwin-x64` from [Electron releases](https://github.com/electron/electron/releases). The version must match what DISA built SV3 against
+4. **Create the `.app` bundle** — For each architecture:
+   - Start with the Electron `.app` from the download (e.g., `Electron.app`)
+   - Rename it to `STIG Viewer 3.app`
+   - Copy `app.asar` and `app.asar.unpacked/` into `STIG Viewer 3.app/Contents/Resources/`
+   - Update `Contents/Info.plist` — set `CFBundleName` to `STIG Viewer 3`, `CFBundleIdentifier` to `com.disa.stigviewer3`, and `CFBundleExecutable` to `STIG Viewer 3`
+   - Rename the main executable in `Contents/MacOS/` to `STIG Viewer 3`
+5. **Place the builds** in `BundledResources/sv3-arm64/` and `BundledResources/sv3-x64/`
+
+### Code signing the bundled apps
+
+Before archiving for distribution, the SV3 Electron apps must be signed with Hardened Runtime using your Developer ID certificate. Sign all Mach-O binaries inside each `STIG Viewer 3.app` (dylibs, frameworks, helpers, `.node` files) from the inside out, then sign the main `.app` last. An `Electron.entitlements` file is included in the project with the required entitlements for Electron apps.
 
 ## Requirements
 
