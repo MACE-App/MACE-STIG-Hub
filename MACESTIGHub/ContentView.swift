@@ -91,7 +91,7 @@ struct ContentView: View {
 
                     LauncherButton(
                         title: "STIG Viewer 3",
-                        version: "v3.6",
+                        version: "v3.7",
                         platform: "Electron",
                         imageName: "SV3Icon",
                         color: .green
@@ -143,18 +143,16 @@ struct ContentView: View {
             .padding(.leading, 14)
             .padding(.bottom, 10)
 
-            // MARK: - Toast Overlay
-            VStack {
-                Spacer()
-                if showToast {
-                    toastView
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                        .padding(.bottom, 8)
-                }
-            }
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showToast)
         }
         .frame(width: 440, height: 520)
+        // MARK: - Toast Overlay
+        .overlay(alignment: .bottom) {
+            if showToast {
+                toastView
+                    .padding(.bottom, 8)
+                    .transition(.opacity.combined(with: .offset(y: 8)))
+            }
+        }
         .onAppear {
             withAnimation(.easeIn(duration: 0.8)) {
                 glowOpacity = 1.0
@@ -225,14 +223,14 @@ struct ContentView: View {
         .padding(.vertical, 8)
         .background(
             Capsule()
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.15), radius: 8, y: 2)
+                .fill(.thickMaterial)
+                .shadow(color: .black.opacity(0.2), radius: 8, y: 2)
         )
         .overlay(
             Capsule()
                 .strokeBorder(
-                    toastIsError ? Color.red.opacity(0.3) : Color.green.opacity(0.3),
-                    lineWidth: 0.5
+                    toastIsError ? Color.red.opacity(0.5) : Color.green.opacity(0.5),
+                    lineWidth: 1
                 )
         )
     }
@@ -240,9 +238,13 @@ struct ContentView: View {
     private func showTemporaryToast(_ message: String, isError: Bool) {
         toastMessage = message
         toastIsError = isError
-        showToast = true
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            showToast = true
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            showToast = false
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                showToast = false
+            }
         }
     }
 

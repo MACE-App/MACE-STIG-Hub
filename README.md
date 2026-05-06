@@ -84,11 +84,11 @@ MACE STIG Hub is a native macOS app that bundles everything you need to run **ST
 | Component | Version | Details |
 |-----------|---------|---------|
 | **STIG Viewer 2** | v2.18 | Java-based STIG assessment tool (JAR) |
-| **STIG Viewer 3** | v3.6 | Electron-based STIG assessment tool |
+| **STIG Viewer 3** | v3.7 | Electron-based STIG assessment tool |
 | **JRE (ARM64)** | Bundled | Java runtime for Apple Silicon Macs |
 | **JRE (x64)** | Bundled | Java runtime for Intel Macs |
-| **Electron (ARM64)** | Bundled | SV3 build for Apple Silicon Macs |
-| **Electron (x64)** | Bundled | SV3 build for Intel Macs |
+| **Electron (ARM64)** | v35.0.0 | SV3 build for Apple Silicon Macs |
+| **Electron (x64)** | v35.0.0 | SV3 build for Intel Macs |
 
 ## Features
 
@@ -118,20 +118,24 @@ MACE STIG Hub is a native macOS app that bundles everything you need to run **ST
 
 ## Building from Source
 
-The `BundledResources/` folder is not included in the repository due to its size (~1.4 GB). To build the project yourself:
+> **Just want to run STIG Viewer on your Mac?** Download the [latest release](https://github.com/mace-app/mace-stig-hub/releases) — everything is pre-built and bundled for you. The steps below are only for contributors who want to build or update the app themselves.
+
+The `BundledResources/` folder is not included in the repository because it's too large (~1.4 GB) to store in git. When you build the app, Xcode copies everything from this folder into the final `.app` bundle automatically — that's what makes MACE STIG Hub self-contained for end users.
+
+To build the project:
 
 1. Download `BundledResources.zip` from the [latest release](https://github.com/mace-app/mace-stig-hub/releases)
 2. Unzip it into the project root so the folder structure looks like this:
 
 ```
 BundledResources/
-├── jre-arm64/              # BellSoft Liberica JRE 21 — macOS ARM64 (Apple Silicon)
-├── jre-x64/                # BellSoft Liberica JRE 21 — macOS x64 (Intel)
-├── STIGViewer-2.18.jar     # STIG Viewer 2 JAR from DISA
+├── jre-arm64/              # Java runtime for Apple Silicon Macs (so SV2 works without installing Java)
+├── jre-x64/                # Java runtime for Intel Macs
+├── STIGViewer-2.18.jar     # STIG Viewer 2 from DISA
 ├── stigviewer2.icns        # STIG Viewer 2 app icon
-├── sv3-arm64/              # STIG Viewer 3.app — macOS ARM64 (Apple Silicon)
+├── sv3-arm64/              # STIG Viewer 3 built for Apple Silicon Macs
 │   └── STIG Viewer 3.app/
-└── sv3-x64/                # STIG Viewer 3.app — macOS x64 (Intel)
+└── sv3-x64/                # STIG Viewer 3 built for Intel Macs
     └── STIG Viewer 3.app/
 ```
 
@@ -140,7 +144,7 @@ BundledResources/
 
 ### Updating components yourself
 
-If you want to update individual components instead of using the pre-built bundle:
+If you're updating to a newer version of a component:
 
 | Component | Source |
 |-----------|--------|
@@ -150,22 +154,42 @@ If you want to update individual components instead of using the pre-built bundl
 
 ### Building STIG Viewer 3 for macOS
 
-DISA distributes STIG Viewer 3 as an Electron app for Windows and Linux but not macOS. The macOS version included in this project is built by extracting the application code from the Linux release and repackaging it inside a macOS Electron shell. Here's how:
+**Why is this necessary?** DISA only releases STIG Viewer 3 for Windows and Linux — there is no official macOS build. Under the hood, SV3 is an [Electron](https://www.electronjs.org/) app, which means its application code can be extracted from the Linux release and dropped into a macOS Electron shell to make it run natively on a Mac. MACE STIG Hub does all of this for you ahead of time so end users never have to touch any of it.
+
+If you need to update SV3 to a newer DISA release, here's how to rebuild it:
 
 1. **Download the Linux build** from [DISA STIG/SRG Tools](https://cyber.mil/stigs/srg-stig-tools/) — grab the Linux x64 `.zip`
-2. **Extract `app.asar`** — Inside the Linux build, locate `resources/app.asar` and `resources/app.asar.unpacked/`. These contain the STIG Viewer 3 application code and native modules (like `sqlite3-offline-next`)
-3. **Download macOS Electron binaries** — Get the matching Electron version for both `darwin-arm64` and `darwin-x64` from [Electron releases](https://github.com/electron/electron/releases). The version must match what DISA built SV3 against
-4. **Create the `.app` bundle** — For each architecture:
-   - Start with the Electron `.app` from the download (e.g., `Electron.app`)
-   - Rename it to `STIG Viewer 3.app`
-   - Copy `app.asar` and `app.asar.unpacked/` into `STIG Viewer 3.app/Contents/Resources/`
-   - Update `Contents/Info.plist` — set `CFBundleName` to `STIG Viewer 3`, `CFBundleIdentifier` to `com.disa.stigviewer3`, and `CFBundleExecutable` to `STIG Viewer 3`
-   - Rename the main executable in `Contents/MacOS/` to `STIG Viewer 3`
-5. **Place the builds** in `BundledResources/sv3-arm64/` and `BundledResources/sv3-x64/`
+
+2. **Extract the app code** — Inside the Linux build, find `resources/app.asar`. This is an archive file (like a zip) that contains all of SV3's application code. You'll also see `resources/app.asar.unpacked/` next to it, which contains native database modules that SV3 needs to run
+
+3. **Fix the missing Apple Silicon database driver** — This is an important step that's easy to miss. DISA builds SV3 on Linux, so their `app.asar` only includes the database driver (`sqlite3`) compiled for Linux and macOS Intel (x64). It does **not** include the Apple Silicon (ARM64) version. Without it, SV3 will appear to launch but hang forever on the "Initializing App State" screen on M-series Macs — with no visible error message. To fix this, you need to open the `app.asar`, add the ARM64 driver, and repack it:
+   ```bash
+   # Open the asar archive (like unzipping it)
+   npx @electron/asar extract app.asar app-extracted
+
+   # Add the Apple Silicon database driver from the previous release's BundledResources
+   mkdir -p app-extracted/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-arm64
+   cp <previous-BundledResources>/sv3-arm64/"STIG Viewer 3.app"/Contents/Resources/app.asar.unpacked/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-arm64/node_sqlite3.node \
+      app-extracted/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-arm64/
+
+   # Repack it back into an asar archive
+   npx @electron/asar pack app-extracted app.asar
+   ```
+
+4. **Download the macOS Electron shell** — Electron is the framework SV3 runs inside. Think of it as a lightweight browser that runs the app. Download **Electron v35.0.0** for both `darwin-arm64` and `darwin-x64` from [Electron releases](https://github.com/electron/electron/releases). It's important to use v35.0.0 — this is the version the original SV3 bundles were built with, and newer versions can break compatibility with SV3's native modules
+
+5. **Assemble the `.app` bundle** — For each architecture (arm64 and x64):
+   - Rename `Electron.app` to `STIG Viewer 3.app`
+   - Drop the repacked `app.asar` into `STIG Viewer 3.app/Contents/Resources/`
+   - Copy `app.asar.unpacked/` from the previous release's BundledResources into `Contents/Resources/` — this contains the already-compiled native database drivers for macOS
+   - Edit `Contents/Info.plist` — set `CFBundleName` to `STIG Viewer 3`, `CFBundleIdentifier` to `com.disa.stigviewer3`, and `CFBundleExecutable` to `STIG Viewer 3`
+   - Rename the main executable inside `Contents/MacOS/` from `Electron` to `STIG Viewer 3`
+
+6. **Place the finished builds** in `BundledResources/sv3-arm64/` and `BundledResources/sv3-x64/`
 
 ### Code signing the bundled apps
 
-Before archiving for distribution, the SV3 Electron apps must be signed with Hardened Runtime using your Developer ID certificate. Sign all Mach-O binaries inside each `STIG Viewer 3.app` (dylibs, frameworks, helpers, `.node` files) from the inside out, then sign the main `.app` last. An `Electron.entitlements` file is included in the project with the required entitlements for Electron apps.
+macOS requires all apps to be signed before they can run — otherwise Gatekeeper will block them. Before archiving for distribution, sign both SV3 `.app` bundles using your Developer ID certificate and the `Electron.entitlements` file included in this project (it grants the permissions Electron needs to run). Sign everything from the inside out — dylibs, `.node` files, and helper apps first, then the main `.app` last. When you then archive MACE STIG Hub in Xcode and notarize it with Apple, the whole package — including the bundled SV3 apps — passes Gatekeeper cleanly on any Mac.
 
 ## Requirements
 
