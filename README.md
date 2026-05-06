@@ -25,7 +25,7 @@
 - [Screenshots](#screenshots)
 - [What's Bundled](#whats-bundled)
 - [Features](#features)
-- [Building from Source](#building-from-source)
+- [For Developers — Building from Source](#for-developers--building-from-source)
 - [Requirements](#requirements)
 - [Disclaimer](#disclaimer)
 - [Community & Feedback](#community--feedback)
@@ -59,6 +59,10 @@ MACE STIG Hub is a native macOS app that bundles everything you need to run **ST
 
 ## Quick Start
 
+> **Just want to run STIG Viewer on your Mac?** Download the app — everything is included. No Java, no setup, no terminal.
+>
+> **Want to build it yourself or contribute?** See [For Developers — Building from Source](#for-developers--building-from-source) below.
+
 1. **Download** the [latest release](https://github.com/mace-app/mace-stig-hub/releases)
 2. **Open** MACE STIG Hub
 3. **Click** STIG Viewer 2 or STIG Viewer 3
@@ -81,14 +85,10 @@ MACE STIG Hub is a native macOS app that bundles everything you need to run **ST
 
 ## What's Bundled
 
-| Component | Version | Details |
-|-----------|---------|---------|
-| **STIG Viewer 2** | v2.18 | Java-based STIG assessment tool (JAR) |
-| **STIG Viewer 3** | v3.7 | Electron-based STIG assessment tool |
-| **JRE (ARM64)** | Bundled | Java runtime for Apple Silicon Macs |
-| **JRE (x64)** | Bundled | Java runtime for Intel Macs |
-| **Electron (ARM64)** | v35.0.0 | SV3 build for Apple Silicon Macs |
-| **Electron (x64)** | v35.0.0 | SV3 build for Intel Macs |
+| Component | Version | Notes |
+|-----------|---------|-------|
+| **STIG Viewer 2** | v2.18 | Bundled Java runtime included — no install needed |
+| **STIG Viewer 3** | v3.7 | Bundled runtime included — no install needed |
 
 ## Features
 
@@ -116,7 +116,7 @@ MACE STIG Hub is a native macOS app that bundles everything you need to run **ST
 - View app version, build info, and system details
 - Copy diagnostics to clipboard for troubleshooting
 
-## Building from Source
+## For Developers — Building from Source
 
 > **Just want to run STIG Viewer on your Mac?** Download the [latest release](https://github.com/mace-app/mace-stig-hub/releases) — everything is pre-built and bundled for you. The steps below are only for contributors who want to build or update the app themselves.
 
