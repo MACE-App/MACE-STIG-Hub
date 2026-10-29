@@ -91,7 +91,7 @@ struct ContentView: View {
 
                     LauncherButton(
                         title: "STIG Viewer 3",
-                        version: "v3.7",
+                        version: "v3.8.1",
                         platform: "Electron",
                         imageName: "SV3Icon",
                         color: .green

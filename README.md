@@ -88,7 +88,7 @@ MACE STIG Hub is a native macOS app that bundles everything you need to run **ST
 | Component | Version | Notes |
 |-----------|---------|-------|
 | **STIG Viewer 2** | v2.18 | Bundled Java runtime included — no install needed |
-| **STIG Viewer 3** | v3.7 | Bundled runtime included — no install needed |
+| **STIG Viewer 3** | v3.8.1 | Bundled runtime included — no install needed |
 
 ## Features
 
@@ -152,18 +152,23 @@ DISA only ships SV3 for Windows/Linux. The macOS build is assembled by extractin
 
 1. Download the **Linux x64 zip** from [DISA STIG/SRG Tools](https://cyber.mil/stigs/srg-stig-tools/) and locate `resources/app.asar`
 
-2. Inject the missing ARM64 database driver — DISA's `app.asar` only includes the macOS Intel sqlite3 binary. Without the ARM64 version, SV3 hangs silently on Apple Silicon at "Initializing App State":
+2. Inject the macOS database drivers — DISA's `app.asar` is missing the macOS sqlite3 binaries (as of 3.8.1 it ships only the Linux one). Without them, SV3 hangs silently at "Initializing App State":
    ```bash
    npx @electron/asar extract app.asar app-extracted
 
-   mkdir -p app-extracted/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-arm64
-   cp BundledResources/sv3-arm64/"STIG Viewer 3.app"/Contents/Resources/app.asar.unpacked/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-arm64/node_sqlite3.node \
-      app-extracted/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-arm64/
+   for arch in arm64 x64; do
+     mkdir -p app-extracted/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-$arch
+     cp BundledResources/sv3-arm64/"STIG Viewer 3.app"/Contents/Resources/app.asar.unpacked/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-$arch/node_sqlite3.node \
+        app-extracted/node_modules/sqlite3-offline-next/binaries/sqlite3-darwin/napi-v3-darwin-$arch/
+   done
+
+   # Add a macOS Edit menu so Cmd+C/V/X/A/Z work (DISA's menu has none)
+   node scripts/patch-sv3-menu.js app-extracted
 
    npx @electron/asar pack app-extracted app.asar
    ```
 
-3. Download **Electron v35.0.0** (`darwin-arm64` and `darwin-x64`) from [Electron releases](https://github.com/electron/electron/releases). Use v35.0.0 — newer versions break compatibility with SV3's native modules
+3. Download Electron for `darwin-arm64` and `darwin-x64` from [Electron releases](https://github.com/electron/electron/releases), matching the version DISA shipped (the `version` file in the Linux zip — **v44.4.5** for SV3 3.8.1). The sqlite3 drivers are N-API, so they work across Electron versions
 
 4. For each architecture, assemble the bundle:
    - Rename `Electron.app` → `STIG Viewer 3.app`
